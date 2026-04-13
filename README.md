@@ -1,4 +1,4 @@
-# A Payment Channel Driver Library
+# The PayPal Payment Channel Driver Library
 
 [![GoDoc](https://pkg.go.dev/badge/github.com/xgfone/go-payment-driver-paypal)](https://pkg.go.dev/github.com/xgfone/go-payment-driver-paypal)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://raw.githubusercontent.com/xgfone/go-payment-driver-paypal/main/LICENSE)
