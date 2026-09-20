@@ -26,7 +26,6 @@ import (
 	"github.com/xgfone/go-currency"
 	"github.com/xgfone/go-payment-driver/builder"
 	"github.com/xgfone/go-payment-driver/driver"
-	"github.com/xgfone/go-toolkit/jsonx"
 	paypal "github.com/xgfone/plutov-paypal"
 )
 
@@ -108,7 +107,7 @@ func (d *Driver) QueryPayment(ctx context.Context, req driver.QueryPaymentReques
 }
 
 func (d *Driver) CancelPayment(ctx context.Context, req driver.CancelPaymentRequest) error {
-	pi, ok, err := d.QueryPayment(ctx, driver.QueryPaymentRequest{
+	pi, ok, err := d.QueryPayment(ctx, driver.QueryPaymentRequest{ //nolint:staticcheck // S1016
 		PaymentId:        req.PaymentId,
 		ChannelPaymentId: req.ChannelPaymentId,
 		ChannelData:      req.ChannelData,
@@ -218,14 +217,14 @@ func (d *Driver) ParseCallbackRequest(ctx context.Context, req driver.CallbackRe
 	}
 
 	var event Event
-	if err = jsonx.UnmarshalReader(&event, req.Request.Body); err != nil {
+	if err = json.NewDecoder(req.Request.Body).Decode(&event); err != nil {
 		return
 	}
 
 	switch event.EventType {
 	case "CHECKOUT.ORDER.APPROVED": // Payer has paid and we need to capture the payment.
 		var order paypal.Order
-		if err = jsonx.Unmarshal(event.Resource, &order); err != nil {
+		if err = json.Unmarshal(event.Resource, &order); err != nil {
 			return
 		}
 
@@ -240,7 +239,7 @@ func (d *Driver) ParseCallbackRequest(ctx context.Context, req driver.CallbackRe
 			paypal.Order
 			OrderID string `json:"order_id"`
 		}
-		if err = jsonx.Unmarshal(event.Resource, &order); err != nil {
+		if err = json.Unmarshal(event.Resource, &order); err != nil {
 			return
 		}
 
@@ -263,7 +262,7 @@ func (d *Driver) ParseCallbackRequest(ctx context.Context, req driver.CallbackRe
 		"PAYMENT.CAPTURE.COMPLETED": // Success
 
 		var capture paypal.CaptureAmount
-		if err = jsonx.Unmarshal(event.Resource, &capture); err != nil {
+		if err = json.Unmarshal(event.Resource, &capture); err != nil {
 			return
 		}
 
@@ -279,7 +278,7 @@ func (d *Driver) ParseCallbackRequest(ctx context.Context, req driver.CallbackRe
 	// to proactively query the refund status based on the refund ID.
 	/*
 		var capture paypal.CaptureAmount
-		if err = jsonx.UnmarshalBytes(event.Resource, &capture); err != nil {
+		if err = json.Unmarshal(event.Resource, &capture); err != nil {
 			return
 		}
 
